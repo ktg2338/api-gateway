@@ -1,0 +1,85 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:}
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.security.reactive.ReactiveUserDetailsServiceAutoConfiguration
+  cloud:
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns: "*"
+                allowedMethods:
+                  - GET
+                  - POST
+                  - PUT
+                  - DELETE
+                  - OPTIONS
+                allowedHeaders: "*"
+                allowCredentials: true
+                exposedHeaders:
+                  - Set-Cookie
+                  - Cookie
+                max-age: 3600
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${AZURE_REDIS_PASSWORD:}
+      timeout: 5000ms
+      ssl:
+        enabled: ${REDIS_SSL:false}
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 2
+        shutdown-timeout: 100ms
+
+services:
+  auth:
+    uri: ${AUTH_SERVICE_URI:http://localhost:8081}
+  competition:
+    uri: ${COMPETITION_SERVICE_URI:http://localhost:8082}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
+    urls:
+      - url: /auth/api-docs
+        name: Auth Service
+      - url: /competition/api-docs
+        name: Competition Service
+    withCredentials: true
+    persistAuthorization: true
+
+jwt:
+  secret: ${JWT_SECRET}
+  access-token-expiration: 3600000
+  refresh-token-expiration: 604800000
+
+logging:
+  level:
+    root: INFO
+    com.aifactory: DEBUG
+    org.hibernate.SQL: WARN
+    org.springframework.security: DEBUG
+    org.springframework.security.web.server.csrf: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+    reactor.netty: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

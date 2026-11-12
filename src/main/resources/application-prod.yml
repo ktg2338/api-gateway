@@ -1,0 +1,45 @@
+spring:
+  config:
+    activate:
+      on-profile: prod
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${AZURE_REDIS_PASSWORD}
+      ssl:
+        enabled: true
+      timeout: 10000ms
+      lettuce:
+        pool:
+          max-active: 16
+          max-wait: 5000ms
+          max-idle: 8
+          min-idle: 4
+        shutdown-timeout: 200ms
+        cluster:
+          refresh:
+            adaptive: true
+            period: 30s
+
+services:
+  auth:
+    uri: ${AUTH_SERVICE_URI:https://auth-prod.internal.purpleriver-9377ba31.koreacentral.azurecontainerapps.io}
+  competition:
+    uri: ${COMPETITION_SERVICE_URI:https://competition-prod.internal.purpleriver-9377ba31.koreacentral.azurecontainerapps.io}
+
+jwt:
+  secret: ${JWT_SECRET}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: never
+  metrics:
+    export:
+      azure-monitor:
+        enabled: true
